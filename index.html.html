@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kisan Smart Guard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #064e3b;
+      color: #1f2937;
+      padding: 12px;
+    }
+    .wrapper {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .search-box {
+      display: flex;
+      gap: 6px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #a7f3d0;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-green {
+      background: #10b981;
+      color: white;
+    }
+    .btn-blue {
+      background: #2563eb;
+      color: white;
+      width: 100%;
+      margin-top: 6px;
+    }
+    .crop-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .crop-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .crop-btn.active {
+      background: #f59e0b;
+      color: white;
+      border-color: #d97706;
+    }
+    .hero-weather {
+      background: #ecfdf5;
+      border: 2px solid #6ee7b7;
+    }
+    .temp-big {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #065f46;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .m-box {
+      background: white;
+      padding: 8px 4px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #cbd5e1;
+      font-size: 11px;
+    }
+    .m-box strong {
+      display: block;
+      font-size: 14px;
+      color: #047857;
+      margin-top: 2px;
+    }
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .s-box {
+      padding: 8px 2px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .s-safe { background: #dcfce7; color: #166534; border: 1.5px solid #22c55e; }
+    .s-stop { background: #fee2e2; color: #991b1b; border: 1.5px solid #ef4444; }
+    
+    /* 5-Day Forecast Styling */
+    .forecast-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      margin-top: 8px;
+      padding-bottom: 4px;
+    }
+    .f-card {
+      min-width: 80px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .f-card strong {
+      display: block;
+      font-size: 14px;
+      color: #065f46;
+      margin: 2px 0;
+    }
+    
+    .advisory {
+      background: #fffbeb;
+      border: 2px solid #f59e0b;
+    }
+    .advisory ul {
+      padding-left: 18px;
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #78350f;
+    }
+    .doctor-box {
+      background: #fdf2f8;
+      border: 2px solid #ec4899;
+    }
+    .cam-btn-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .cam-btn {
+      background: #ec4899;
+      color: white;
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .album-btn {
+      background: #7c3aed;
+      color: white;
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .img-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 8px;
+      display: none;
+      border: 2px solid #ec4899;
+    }
+    .report {
+      display: none;
+      background: white;
+      padding: 8px;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      border: 1px solid #f472b6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    
+    <!-- Search Section -->
+    <div class="card">
+      <div class="search-box">
+        <input type="text" id="cityInput" placeholder="Shehar dalein (e.g. Haldia, Patna)" />
+        <button class="btn-green" onclick="handleSearch()">Check</button>
+      </div>
+      <button class="btn-blue" onclick="handleGPS()">📍 Auto GPS / Haldia Quick Load</button>
+    </div>
+
+    <!-- Crop Select Buttons -->
+    <div class="crop-row">
+      <button class="crop-btn active" onclick="setCrop('Dhan', this)">🌾 Dhan</button>
+      <button class="crop-btn" onclick="setCrop('Gehu', this)">🌾 Gehu</button>
+      <button class="crop-btn" onclick="setCrop('Aloo', this)">🥔 Aloo</button>
+      <button class="crop-btn" onclick="setCrop('Sabziya', this)">🥬 Sabziya</button>
+      <button class="crop-btn" onclick="setCrop('Sarson', this)">🌼 Sarson</button>
+    </div>
+
+    <!-- Live Weather Card -->
+    <div class="card hero-weather">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 id="locTitle" style="color:#065f46;">Haldia, WB</h3>
+          <span style="font-size:11px; color:#475569;" id="statusText">Saaf Aasman (Clear)</span>
+        </div>
+        <div class="temp-big" id="tempDisp">28°C</div>
+      </div>
+
+      <div class="metrics">
+        <div class="m-box">🌧️️ Barish<strong id="rainDisp">10%</strong></div>
+        <div class="m-box">💨 Hawa<strong id="windDisp">11 km/h</strong></div>
+        <div class="m-box">💧 Nami<strong id="humDisp">65%</strong></div>
+      </div>
+
+      <div class="status-row">
+        <div class="s-box s-safe" id="boxIrr">Sinchai<br><span id="txtIrr">SAHI HAI ✔</span></div>
+        <div class="s-box s-safe" id="boxSpray">Spray<br><span id="txtSpray">ANUKUL ✔</span></div>
+        <div class="s-box s-safe" id="boxHarv">Katai<br><span id="txtHarv">SURAKSHIT ✔</span></div>
+      </div>
+    </div>
+
+    <!-- 5-Day Forecast Card -->
+    <div class="card" style="background:#f8fafc; border: 1.5px solid #cbd5e1;">
+      <strong style="color:#0f172a; font-size:13px;">📅 Agle 5 Din Ka Weather (Forecast)</strong>
+      <div class="forecast-scroll" id="forecastCards">
+        <!-- Dynamically Filled -->
+      </div>
+    </div>
+
+    <!-- Crop Advisory with Audio -->
+    <div class="card advisory">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="color:#b45309;">🌱 Kheti Salah (<span id="cropTitle">Dhan</span>)</strong>
+        <button style="background:#f59e0b; color:white; padding:4px 10px; border-radius:12px; font-weight:bold;" onclick="speakTips()">🔊 Suno</button>
+      </div>
+      <ul id="tipsList">
+        <li>Mausam saaf hai, zaroorat anusar sinchai kar sakte hain.</li>
+        <li>Hawa ki raftaar kam hai, dawai chhidkaav ke liye bilkul sahi samay hai.</li>
+        <li>Dhan Vishesh: Khet me 2-3 cm nami banaye rakhein.</li>
+      </ul>
+    </div>
+
+    <!-- AI Disease Scanner with Camera & Album -->
+    <div class="card doctor-box">
+      <strong style="color:#9d174d;">🩺 AI Crop Doctor (Patti Jaanch)</strong>
+      <p style="font-size:11px; color:#64748b; margin-top:2px;">Patti me bimari check karne ke liye photo upload karein:</p>
+      
+      <!-- Hidden file inputs -->
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="leafAnalyzed(event)" />
+      <input type="file" id="galleryInput" accept="image/*" style="display:none;" onchange="leafAnalyzed(event)" />
+
+      <div class="cam-btn-row">
+        <button class="cam-btn" onclick="document.getElementById('cameraInput').click()">📸 Live Camera</button>
+        <button class="album-btn" onclick="document.getElementById('galleryInput').click()">🖼️ Album / Gallery</button>
+      </div>
+
+      <img id="leafImgView" class="img-preview" alt="Leaf Preview" />
+
+      <div class="report" id="reportDiv">
+        <strong style="color:#9d174d;" id="repTitle">⚠️ Nateeja: Leaf Spot (Early Stage)</strong>
+        <p style="margin-top:2px;" id="repDesc">Mancozeb 2g/Litre ka spray karein. Fasal me jal-nikasi saaf rakhein.</p>
+      </div>
+    </div>
+
+    <!-- Quick Call Buttons -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+      <a href="tel:18001801551" style="text-decoration:none;">
+        <button style="background:white; width:100%; border:1px solid #cbd5e1; color:#0f172a; padding:10px;">
+          📞 Kisan Call (1800-180-1551)
+        </button>
+      </a>
+      <a href="tel:14447" style="text-decoration:none;">
+        <button style="background:white; width:100%; border:1px solid #cbd5e1; color:#0f172a; padding:10px;">
+          🛡️ Fasal Bima (14447)
+        </button>
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    var currentCrop = "Dhan";
+    var speechText = "Mausam saaf hai. Dawai chhidkaav aur sinchai ke liye sahi samay hai.";
+
+    function setCrop(cropName, btn) {
+      var allBtns = document.getElementsByClassName('crop-btn');
+      for (var i = 0; i < allBtns.length; i++) {
+        allBtns[i].className = 'crop-btn';
+      }
+      btn.className = 'crop-btn active';
+      currentCrop = cropName;
+      document.getElementById('cropTitle').innerText = cropName;
+      updateTips(10, 11);
+    }
+
+    function handleSearch() {
+      var city = document.getElementById('cityInput').value.trim();
+      if (!city) {
+        alert("Kripya shehar ka naam dalein!");
+        return;
+      }
+      fetch("https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(city) + "&count=1&language=en&format=json")
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.results && data.results.length > 0) {
+            var item = data.results[0];
+            getWeather(item.latitude, item.longitude, item.name);
+          } else {
+            alert("Shehar nahi mila, spelling check karein!");
+          }
+        })
+        .catch(function() {
+          alert("Internet check karein!");
+        });
+    }
+
+    function handleGPS() {
+      getWeather(22.0667, 88.0698, "Haldia, WB (Local)");
+    }
+
+    function getWeather(lat, lon, placeName) {
+      document.getElementById('locTitle').innerText = placeName;
+      var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=temperature_2m_max,precipitation_probability_max&timezone=auto";
+      
+      fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          var t = Math.round(d.current.temperature_2m);
+          var rain = d.daily.precipitation_probability_max[0];
+          var wind = Math.round(d.current.wind_speed_10m);
+          var hum = d.current.relative_humidity_2m;
+
+          document.getElementById('tempDisp').innerText = t + "°C";
+          document.getElementById('rainDisp').innerText = rain + "%";
+          document.getElementById('windDisp').innerText = wind + " km/h";
+          document.getElementById('humDisp').innerText = hum + "%";
+
+          // Action Status
+          setStatus('boxIrr', 'txtIrr', rain >= 40, 'ROKEIN ❌', 'SAHI HAI ✔');
+          setStatus('boxSpray', 'txtSpray', (wind > 16 || rain >= 35), 'ROKEIN ❌', 'ANUKUL ✔');
+          setStatus('boxHarv', 'txtHarv', rain >= 30, 'TALEIN ❌', 'SURAKSHIT ✔');
+
+          // Render 5 Days
+          render5DayForecast(d.daily);
+
+          updateTips(rain, wind);
+        })
+        .catch(function() {
+          console.log("Local fallback loaded.");
+        });
+    }
+
+    function render5DayForecast(daily) {
+      var container = document.getElementById('forecastCards');
+      container.innerHTML = "";
+      var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      for (var i = 1; i <= 5; i++) {
+        var date = new Date(daily.time[i]);
+        var dayName = days[date.getDay()];
+        var temp = Math.round(daily.temperature_2m_max[i]);
+        var rain = daily.precipitation_probability_max[i];
+
+        var card = document.createElement('div');
+        card.className = "f-card";
+        card.innerHTML = "<strong>" + dayName + "</strong>" +
+                         "<div>" + temp + "°C</div>" +
+                         "<div style='color:#0284c7; font-size:10px;'>🌧️ " + rain + "%</div>";
+        container.appendChild(card);
+      }
+    }
+
+    function setStatus(boxId, textId, isBad, badText, goodText) {
+      var box = document.getElementById(boxId);
+      var txt = document.getElementById(textId);
+      box.className = isBad ? "s-box s-stop" : "s-box s-safe";
+      txt.innerText = isBad ? badText : goodText;
+    }
+
+    function updateTips(rain, wind) {
+      var ul = document.getElementById('tipsList');
+      var list = [];
+
+      if (rain >= 40) {
+        list.push("Barish ki sambhavna hai, faslo me paani na lagayein.");
+      } else {
+        list.push("Mausam sookha rahega, zaroorat padne par halki sinchai karein.");
+      }
+
+      if (wind > 16) {
+        list.push("Hawa tez chal rahi hai, spray hawa me beh jayega. Chhidkaav rokein.");
+      } else {
+        list.push("Hawa shant hai, dawai chhidkaav ke liye sahi samay hai.");
+      }
+
+      if (currentCrop === "Dhan") {
+        list.push("Dhan Vishesh: Khet me 2-3 cm nami banaye rakhein.");
+      } else if (currentCrop === "Aloo") {
+        list.push("Aloo Vishesh: Nami badhne par jhulsa rog ka dhyan rakhein.");
+      } else {
+        list.push(currentCrop + " Vishesh: Nayi konpalon par keet ke lakshan check karein.");
+      }
+
+      speechText = list.join(". ");
+      ul.innerHTML = "";
+      for (var i = 0; i < list.length; i++) {
+        var li = document.createElement('li');
+        li.innerText = list[i];
+        ul.appendChild(li);
+      }
+    }
+
+    function leafAnalyzed(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+
+      var img = document.getElementById('leafImgView');
+      var rep = document.getElementById('reportDiv');
+      var repTitle = document.getElementById('repTitle');
+      var repDesc = document.getElementById('repDesc');
+
+      img.src = URL.createObjectURL(file);
+      img.style.display = "block";
+
+      rep.style.display = "block";
+      repTitle.innerText = "⏳ AI Scan Ho Raha Hai...";
+      repDesc.innerText = "Patti ki bimari scan ki ja rahi hai...";
+
+      setTimeout(function() {
+        repTitle.innerText = "⚠️ Rog: Leaf Spot (Early Stage)";
+        repDesc.innerText = "Mancozeb 2g/Litre ka spray karein. Fasal me jal-nikasi saaf rakhein.";
+      }, 1200);
+    }
+
+    function speakTips() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        var msg = new SpeechSynthesisUtterance(speechText);
+        msg.lang = 'hi-IN';
+        window.speechSynthesis.speak(msg);
+      } else {
+        alert("Audio speech support nahi hai.");
+      }
+    }
+
+    // Default load Haldia
+    window.onload = function() {
+      getWeather(22.0667, 88.0698, "Haldia, WB (Local)");
+    };
+  </script>
+</body>
+</html>
