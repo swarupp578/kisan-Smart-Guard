@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,7 +9,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
     body {
@@ -29,6 +29,27 @@
       border-radius: 14px;
       padding: 14px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .lang-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .lang-btn {
+      background: #065f46;
+      color: #a7f3d0;
+      border: 1px solid #10b981;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: #f59e0b;
+      color: white;
+      border-color: #d97706;
     }
     .search-box {
       display: flex;
@@ -125,7 +146,6 @@
     .s-safe { background: #dcfce7; color: #166534; border: 1.5px solid #22c55e; }
     .s-stop { background: #fee2e2; color: #991b1b; border: 1.5px solid #ef4444; }
     
-    /* 5-Day Forecast Styling */
     .forecast-scroll {
       display: flex;
       gap: 6px;
@@ -158,7 +178,7 @@
       padding-left: 18px;
       margin-top: 8px;
       font-size: 13px;
-      line-height: 1.4;
+      line-height: 1.5;
       color: #78350f;
     }
     .doctor-box {
@@ -208,50 +228,57 @@
 
   <div class="wrapper">
     
+    <!-- Language Switcher -->
+    <div class="lang-bar">
+      <button class="lang-btn" onclick="setLanguage('en', this)">English</button>
+      <button class="lang-btn active" onclick="setLanguage('hi', this)">हिन्दी</button>
+      <button class="lang-btn" onclick="setLanguage('bn', this)">বাংলা</button>
+    </div>
+
     <!-- Search Section -->
     <div class="card">
       <div class="search-box">
-        <input type="text" id="cityInput" placeholder="Shehar dalein (e.g. Haldia, Patna)" />
-        <button class="btn-green" onclick="handleSearch()">Check</button>
+        <input type="text" id="cityInput" placeholder="शहर या गाँव का नाम दर्ज करें (उदा. हल्दिया, पटना)" />
+        <button class="btn-green" id="btnSearch" onclick="handleSearch()">जाँचें</button>
       </div>
-      <button class="btn-blue" onclick="handleGPS()">📍 Auto GPS / Haldia Quick Load</button>
+      <button class="btn-blue" id="btnGPS" onclick="handleGPS()">📍 ऑटो जीपीएस / हल्दिया लोड करें</button>
     </div>
 
     <!-- Crop Select Buttons -->
     <div class="crop-row">
-      <button class="crop-btn active" onclick="setCrop('Dhan', this)">🌾 Dhan</button>
-      <button class="crop-btn" onclick="setCrop('Gehu', this)">🌾 Gehu</button>
-      <button class="crop-btn" onclick="setCrop('Aloo', this)">🥔 Aloo</button>
-      <button class="crop-btn" onclick="setCrop('Sabziya', this)">🥬 Sabziya</button>
-      <button class="crop-btn" onclick="setCrop('Sarson', this)">🌼 Sarson</button>
+      <button class="crop-btn active" data-crop="paddy" onclick="setCrop('paddy', this)">🌾 धान</button>
+      <button class="crop-btn" data-crop="wheat" onclick="setCrop('wheat', this)">🌾 गेहूँ</button>
+      <button class="crop-btn" data-crop="potato" onclick="setCrop('potato', this)">🥔 आलू</button>
+      <button class="crop-btn" data-crop="veg" onclick="setCrop('veg', this)">🥬 सब्ज़ियाँ</button>
+      <button class="crop-btn" data-crop="mustard" onclick="setCrop('mustard', this)">🌼 सरसों</button>
     </div>
 
     <!-- Live Weather Card -->
     <div class="card hero-weather">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <h3 id="locTitle" style="color:#065f46;">Haldia, WB</h3>
-          <span style="font-size:11px; color:#475569;" id="statusText">Saaf Aasman (Clear)</span>
+          <h3 id="locTitle" style="color:#065f46;">हल्दिया, पश्चिम बंगाल</h3>
+          <span style="font-size:12px; color:#475569;" id="statusText">साफ़ आसमान (Clear)</span>
         </div>
         <div class="temp-big" id="tempDisp">28°C</div>
       </div>
 
       <div class="metrics">
-        <div class="m-box">🌧️️ Barish<strong id="rainDisp">10%</strong></div>
-        <div class="m-box">💨 Hawa<strong id="windDisp">11 km/h</strong></div>
-        <div class="m-box">💧 Nami<strong id="humDisp">65%</strong></div>
+        <div class="m-box"><span id="lblRain">🌧 वर्षा</span><strong id="rainDisp">10%</strong></div>
+        <div class="m-box"><span id="lblWind">💨 हवा की गति</span><strong id="windDisp">11 km/h</strong></div>
+        <div class="m-box"><span id="lblHum">💧 आर्द्रता (नमी)</span><strong id="humDisp">65%</strong></div>
       </div>
 
       <div class="status-row">
-        <div class="s-box s-safe" id="boxIrr">Sinchai<br><span id="txtIrr">SAHI HAI ✔</span></div>
-        <div class="s-box s-safe" id="boxSpray">Spray<br><span id="txtSpray">ANUKUL ✔</span></div>
-        <div class="s-box s-safe" id="boxHarv">Katai<br><span id="txtHarv">SURAKSHIT ✔</span></div>
+        <div class="s-box s-safe" id="boxIrr"><span id="lblIrr">सिंचाई</span><br><span id="txtIrr">उचित समय ✔</span></div>
+        <div class="s-box s-safe" id="boxSpray"><span id="lblSpray">छिड़काव</span><br><span id="txtSpray">अनुकूल ✔</span></div>
+        <div class="s-box s-safe" id="boxHarv"><span id="lblHarv">कटाई</span><br><span id="txtHarv">सुरक्षित ✔</span></div>
       </div>
     </div>
 
     <!-- 5-Day Forecast Card -->
     <div class="card" style="background:#f8fafc; border: 1.5px solid #cbd5e1;">
-      <strong style="color:#0f172a; font-size:13px;">📅 Agle 5 Din Ka Weather (Forecast)</strong>
+      <strong style="color:#0f172a; font-size:13px;" id="lblForecastHead">📅 अगले 5 दिन का मौसम</strong>
       <div class="forecast-scroll" id="forecastCards">
         <!-- Dynamically Filled -->
       </div>
@@ -260,48 +287,45 @@
     <!-- Crop Advisory with Audio -->
     <div class="card advisory">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="color:#b45309;">🌱 Kheti Salah (<span id="cropTitle">Dhan</span>)</strong>
-        <button style="background:#f59e0b; color:white; padding:4px 10px; border-radius:12px; font-weight:bold;" onclick="speakTips()">🔊 Suno</button>
+        <strong style="color:#b45309;"><span id="lblAdvHead">🌱 कृषि परामर्श</span> (<span id="cropTitle">धान</span>)</strong>
+        <button style="background:#f59e0b; color:white; padding:4px 12px; border-radius:12px; font-weight:bold;" onclick="speakTips()" id="lblSuno">🔊 सुनें</button>
       </div>
       <ul id="tipsList">
-        <li>Mausam saaf hai, zaroorat anusar sinchai kar sakte hain.</li>
-        <li>Hawa ki raftaar kam hai, dawai chhidkaav ke liye bilkul sahi samay hai.</li>
-        <li>Dhan Vishesh: Khet me 2-3 cm nami banaye rakhein.</li>
+        <!-- Populated via script -->
       </ul>
     </div>
 
     <!-- AI Disease Scanner with Camera & Album -->
     <div class="card doctor-box">
-      <strong style="color:#9d174d;">🩺 AI Crop Doctor (Patti Jaanch)</strong>
-      <p style="font-size:11px; color:#64748b; margin-top:2px;">Patti me bimari check karne ke liye photo upload karein:</p>
+      <strong style="color:#9d174d;" id="lblDocTitle">🩺 एआई फसल डॉक्टर (पत्ती रोग जाँच)</strong>
+      <p style="font-size:11px; color:#64748b; margin-top:2px;" id="lblDocSub">पत्ती का रोग पहचानने के लिए फोटो खींचें या अपलोड करें:</p>
       
-      <!-- Hidden file inputs -->
       <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="leafAnalyzed(event)" />
       <input type="file" id="galleryInput" accept="image/*" style="display:none;" onchange="leafAnalyzed(event)" />
 
       <div class="cam-btn-row">
-        <button class="cam-btn" onclick="document.getElementById('cameraInput').click()">📸 Live Camera</button>
-        <button class="album-btn" onclick="document.getElementById('galleryInput').click()">🖼️ Album / Gallery</button>
+        <button class="cam-btn" onclick="document.getElementById('cameraInput').click()" id="lblCamBtn">📸 लाइव कैमरा से फोटो लें</button>
+        <button class="album-btn" onclick="document.getElementById('galleryInput').click()" id="lblAlbumBtn">🖼️ गैलरी / एल्बम से चुनें</button>
       </div>
 
       <img id="leafImgView" class="img-preview" alt="Leaf Preview" />
 
       <div class="report" id="reportDiv">
-        <strong style="color:#9d174d;" id="repTitle">⚠️ Nateeja: Leaf Spot (Early Stage)</strong>
-        <p style="margin-top:2px;" id="repDesc">Mancozeb 2g/Litre ka spray karein. Fasal me jal-nikasi saaf rakhein.</p>
+        <strong style="color:#9d174d;" id="repTitle">⚠️ परिणाम: लीफ़ स्पॉट (पत्ती धब्बा रोग)</strong>
+        <p style="margin-top:2px;" id="repDesc">मैंकोज़ेब 75% डब्ल्यूपी (2 ग्राम प्रति लीटर पानी) का छिड़काव करें। खेत में उचित जल निकासी बनाए रखें।</p>
       </div>
     </div>
 
     <!-- Quick Call Buttons -->
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
       <a href="tel:18001801551" style="text-decoration:none;">
-        <button style="background:white; width:100%; border:1px solid #cbd5e1; color:#0f172a; padding:10px;">
-          📞 Kisan Call (1800-180-1551)
+        <button style="background:white; width:100%; border:1px solid #cbd5e1; color:#0f172a; padding:10px;" id="lblKCC">
+          📞 किसान कॉल सेंटर (1800-180-1551)
         </button>
       </a>
       <a href="tel:14447" style="text-decoration:none;">
-        <button style="background:white; width:100%; border:1px solid #cbd5e1; color:#0f172a; padding:10px;">
-          🛡️ Fasal Bima (14447)
+        <button style="background:white; width:100%; border:1px solid #cbd5e1; color:#0f172a; padding:10px;" id="lblBima">
+          🛡️ प्रधानमंत्री फसल बीमा (14447)
         </button>
       </a>
     </div>
@@ -309,24 +333,212 @@
   </div>
 
   <script>
-    var currentCrop = "Dhan";
-    var speechText = "Mausam saaf hai. Dawai chhidkaav aur sinchai ke liye sahi samay hai.";
+    var currentLang = "hi";
+    var currentCropKey = "paddy";
+    var lastRain = 10;
+    var lastWind = 11;
+    var speechText = "";
+    var cachedDaily = null;
 
-    function setCrop(cropName, btn) {
+    var translations = {
+      en: {
+        voiceLang: 'en-IN',
+        cityPlaceholder: "Enter city or town name (e.g. Haldia, Patna)",
+        searchBtn: "Check",
+        gpsBtn: "📍 Auto GPS / Haldia Quick Load",
+        crops: { paddy: "🌾 Paddy", wheat: "🌾 Wheat", potato: "🥔 Potato", veg: "🥬 Vegetables", mustard: "🌼 Mustard" },
+        weatherStatus: "Clear Sky",
+        rain: "🌧 Rain",
+        wind: "💨 Wind",
+        humidity: "💧 Humidity",
+        irrigation: "Irrigation",
+        spray: "Spray",
+        harvest: "Harvest",
+        statusGood: "SAFE ✔",
+        statusWait: "WAIT ❌",
+        forecastHead: "📅 Next 5-Day Weather",
+        advisoryHead: "🌱 Farming Advisory",
+        listenBtn: "🔊 Listen",
+        docTitle: "🩺 AI Crop Doctor (Leaf Check)",
+        docSub: "Upload or capture a leaf photo to diagnose crop disease:",
+        camBtn: "📸 Take Live Photo",
+        albumBtn: "🖼️ Choose from Gallery",
+        scanningText: "⏳ AI Scanning in progress...",
+        scanningDesc: "Analyzing leaf spots and fungal symptoms...",
+        repTitle: "⚠️ Result: Leaf Spot (Early Stage)",
+        repDesc: "Spray Mancozeb 75% WP (2g/Litre water). Maintain proper water drainage in field.",
+        kcc: "📞 Kisan Call Center (1800-180-1551)",
+        bima: "🛡️ Crop Insurance (14447)",
+        tips: {
+          rainHigh: "Rain expected: Suspend irrigation and ensure clean field drainage channels.",
+          rainLow: "Dry weather expected: Apply light irrigation as needed.",
+          windHigh: "High wind speed: Postpone chemical spraying to avoid pesticide drift.",
+          windLow: "Calm wind conditions: Favorable time for foliar spraying.",
+          crops: {
+            paddy: "Paddy Advisory: Maintain 2-3 cm standing water level in the field.",
+            wheat: "Wheat Advisory: Ensure optimum soil moisture during the crown root stage.",
+            potato: "Potato Advisory: Monitor closely for late blight symptoms under high humidity.",
+            veg: "Vegetables Advisory: Inspect leaf undersides regularly for sucking pest infestations.",
+            mustard: "Mustard Advisory: Keep a regular check on aphid population during cloudy periods."
+          }
+        },
+        days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+      },
+      hi: {
+        voiceLang: 'hi-IN',
+        cityPlaceholder: "शहर या गाँव का नाम दर्ज करें (उदा. हल्दिया, पटना)",
+        searchBtn: "जाँचें",
+        gpsBtn: "📍 ऑटो जीपीएस / हल्दिया लोड करें",
+        crops: { paddy: "🌾 धान", wheat: "🌾 गेहूँ", potato: "🥔 आलू", veg: "🥬 सब्ज़ियाँ", mustard: "🌼 सरसों" },
+        weatherStatus: "साफ़ आसमान (Clear)",
+        rain: "🌧 वर्षा",
+        wind: "💨 हवा की गति",
+        humidity: "💧 आर्द्रता",
+        irrigation: "सिंचाई",
+        spray: "छिड़काव",
+        harvest: "कटाई",
+        statusGood: "उचित समय ✔",
+        statusWait: "रोकें ❌",
+        forecastHead: "📅 अगले 5 दिन का मौसम",
+        advisoryHead: "🌱 कृषि परामर्श",
+        listenBtn: "🔊 सुनें",
+        docTitle: "🩺 एआई फसल डॉक्टर (पत्ती रोग जाँच)",
+        docSub: "पत्ती का रोग पहचानने के लिए फोटो खींचें या अपलोड करें:",
+        camBtn: "📸 लाइव कैमरा से फोटो लें",
+        albumBtn: "🖼️ गैलरी / एल्बम से चुनें",
+        scanningText: "⏳ एआई द्वारा पत्ती की जाँच जारी है...",
+        scanningDesc: "पत्ती के धब्बों और फफूंद के लक्षणों का विश्लेषण किया जा रहा है...",
+        repTitle: "⚠️ परिणाम: लीफ़ स्पॉट (पत्ती धब्बा रोग)",
+        repDesc: "मैंकोज़ेब 75% डब्ल्यूपी (2 ग्राम प्रति लीटर पानी) का छिड़काव करें। खेत में उचित जल निकासी बनाए रखें।",
+        kcc: "📞 किसान कॉल सेंटर (1800-180-1551)",
+        bima: "🛡️ प्रधानमंत्री फसल बीमा (14447)",
+        tips: {
+          rainHigh: "वर्षा की संभावना है: सिंचाई तुरंत रोकें और खेत में जल निकासी की नाली साफ़ करें।",
+          rainLow: "मौसम शुष्क रहेगा: आवश्यकतानुसार फ़सल में हल्की सिंचाई कर सकते हैं।",
+          windHigh: "हवा की गति तेज़ है: अभी कीटनाशक अथवा दवा का छिड़काव न करें।",
+          windLow: "हवा शांत है: फ़सल पर पोषक तत्व या कीटनाशक छिड़काव के लिए अनुकूल समय है।",
+          crops: {
+            paddy: "धान विशेष: खेत में 2 से 3 सेंटीमीटर तक पानी की नमी बनाए रखें।",
+            wheat: "गेहूँ विशेष: कल्ले फूटते समय खेत में संतुलित नमी का विशेष ध्यान रखें।",
+            potato: "आलू विशेष: नमी अधिक रहने पर झुलसा रोग के लक्षणों पर सतत निगरानी रखें।",
+            veg: "सब्ज़ी विशेष: नई कोपलों और पत्तियों के निचले हिस्से में रस चूसक कीटों की जाँच करें।",
+            mustard: "सरसों विशेष: बादल छाए रहने की स्थिति में माहू (चेपा) कीट के प्रकोप से बचाव करें।"
+          }
+        },
+        days: ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"]
+      },
+      bn: {
+        voiceLang: 'bn-IN',
+        cityPlaceholder: "শহরের নাম লিখুন (যেমন Haldia, Patna)",
+        searchBtn: "খুঁজুন",
+        gpsBtn: "📍 অটো জিপিএস / হলদিয়া কুইক লোড",
+        crops: { paddy: "🌾 ধান", wheat: "🌾 গম", potato: "🥔 আলু", veg: "🥬 শাকসবজি", mustard: "🌼 সরিষা" },
+        weatherStatus: "পরিষ্কার আকাশ (Clear)",
+        rain: "🌧 বৃষ্টি",
+        wind: "💨 বাতাস",
+        humidity: "💧 আর্দ্রতা",
+        irrigation: "সেচ",
+        spray: "স্প্রে",
+        harvest: "ফসল কাটা",
+        statusGood: "অনুকূল ✔",
+        statusWait: "বন্ধ রাখুন ❌",
+        forecastHead: "📅 আগামী ৫ দিনের আবহাওয়া",
+        advisoryHead: "🌱 কৃষি পরামর্শ",
+        listenBtn: "🔊 শুনুন",
+        docTitle: "🩺 এআই শস্য ডাক্তার (পাতা পরীক্ষা)",
+        docSub: "পাতার রোগ শনাক্ত করার জন্য ছবি তুলুন বা আপলোড করুন:",
+        camBtn: "📸 লাইভ ক্যামেরা",
+        albumBtn: "🖼️ অ্যালবাম / গ্যালারি",
+        scanningText: "⏳ এআই স্ক্যান করা হচ্ছে...",
+        scanningDesc: "পাতার দাগ ও রোগের লক্ষণ বিশ্লেষণ করা হচ্ছে...",
+        repTitle: "⚠️ ফলাফল: পাতার দাগ রোগ (প্রাথমিক পর্যায়)",
+        repDesc: "ম্যানকোজেব (২ গ্রাম/লিটার) স্প্রে করুন। জমিতে অতিরিক্ত পানি নিষ্কাশন ব্যবস্থা রাখুন।",
+        kcc: "📞 কিষাণ কল (1800-180-1551)",
+        bima: "🛡️ ফসল বীমা (14447)",
+        tips: {
+          rainHigh: "বৃষ্টির সম্ভাবনা রয়েছে, জমিতে সেচ দেওয়া বন্ধ রাখুন এবং নিকাশি নালা পরিষ্কার করুন।",
+          rainLow: "আবহাওয়া শুষ্ক থাকবে, প্রয়োজন অনুযায়ী হালকা সেচ দিন।",
+          windHigh: "বাতাসের গতি বেশি, এখন কীটনাশক স্প্রে করবেন না।",
+          windLow: "বাতাস শান্ত রয়েছে, কীটনাশক স্প্রে করার জন্য উপযুক্ত সময়।",
+          crops: {
+            paddy: "ধান বিশেষ: জমিতে ২-৩ সেমি পানি বজায় রাখুন।",
+            wheat: "গম বিশেষ: শিকড় গজানোর সময় জমিতে সঠিক আর্দ্রতা বজায় রাখুন।",
+            potato: "আলু বিশেষ: আর্দ্রতা বৃদ্ধি পেলে ধসা রোগের দিকে খেয়াল রাখুন।",
+            veg: "সবজি বিশেষ: পাতার নিচে পোকার আক্রমণ নিয়মিত পর্যবেক্ষণ করুন।",
+            mustard: "সরিষা বিশেষ: মেঘলা আবহাওয়ায় জাব পোকার আক্রমণ নজরে রাখুন।"
+          }
+        },
+        days: ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহস্পতি", "শুক্র", "শনি"]
+      }
+    };
+
+    function setLanguage(lang, btn) {
+      currentLang = lang;
+      var langBtns = document.querySelectorAll('.lang-btn');
+      langBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      applyLanguageUI();
+      updateTips(lastRain, lastWind);
+      if (cachedDaily) render5DayForecast(cachedDaily);
+    }
+
+    function applyLanguageUI() {
+      var t = translations[currentLang];
+
+      document.getElementById('cityInput').placeholder = t.cityPlaceholder;
+      document.getElementById('btnSearch').innerText = t.searchBtn;
+      document.getElementById('btnGPS').innerText = t.gpsBtn;
+
+      var cropButtons = document.querySelectorAll('.crop-btn');
+      cropButtons.forEach(function(b) {
+        var key = b.getAttribute('data-crop');
+        if (t.crops[key]) b.innerText = t.crops[key];
+      });
+
+      document.getElementById('statusText').innerText = t.weatherStatus;
+      document.getElementById('lblRain').innerText = t.rain;
+      document.getElementById('lblWind').innerText = t.wind;
+      document.getElementById('lblHum').innerText = t.humidity;
+
+      document.getElementById('lblIrr').innerText = t.irrigation;
+      document.getElementById('lblSpray').innerText = t.spray;
+      document.getElementById('lblHarv').innerText = t.harvest;
+
+      document.getElementById('lblForecastHead').innerText = t.forecastHead;
+      document.getElementById('lblAdvHead').innerText = t.advisoryHead;
+      document.getElementById('cropTitle').innerText = t.crops[currentCropKey].replace(/[^a-zA-Z\u0900-\u097F\u0980-\u09FF]/g, '').trim();
+      document.getElementById('lblSuno').innerText = t.listenBtn;
+
+      document.getElementById('lblDocTitle').innerText = t.docTitle;
+      document.getElementById('lblDocSub').innerText = t.docSub;
+      document.getElementById('lblCamBtn').innerText = t.camBtn;
+      document.getElementById('lblAlbumBtn').innerText = t.albumBtn;
+      document.getElementById('lblKCC').innerText = t.kcc;
+      document.getElementById('lblBima').innerText = t.bima;
+
+      setStatus('boxIrr', 'txtIrr', lastRain >= 40, t.statusWait, t.statusGood);
+      setStatus('boxSpray', 'txtSpray', (lastWind > 16 || lastRain >= 35), t.statusWait, t.statusGood);
+      setStatus('boxHarv', 'txtHarv', lastRain >= 30, t.statusWait, t.statusGood);
+    }
+
+    function setCrop(cropKey, btn) {
       var allBtns = document.getElementsByClassName('crop-btn');
       for (var i = 0; i < allBtns.length; i++) {
         allBtns[i].className = 'crop-btn';
       }
       btn.className = 'crop-btn active';
-      currentCrop = cropName;
-      document.getElementById('cropTitle').innerText = cropName;
-      updateTips(10, 11);
+      currentCropKey = cropKey;
+
+      var t = translations[currentLang];
+      document.getElementById('cropTitle').innerText = t.crops[cropKey].replace(/[^a-zA-Z\u0900-\u097F\u0980-\u09FF]/g, '').trim();
+      updateTips(lastRain, lastWind);
     }
 
     function handleSearch() {
       var city = document.getElementById('cityInput').value.trim();
       if (!city) {
-        alert("Kripya shehar ka naam dalein!");
+        alert(currentLang === 'hi' ? "कृपया किसी शहर या गाँव का नाम दर्ज करें!" : (currentLang === 'bn' ? "অনুগ্রহ করে শহরের নাম লিখুন!" : "Please enter a location name!"));
         return;
       }
       fetch("https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(city) + "&count=1&language=en&format=json")
@@ -336,16 +548,16 @@
             var item = data.results[0];
             getWeather(item.latitude, item.longitude, item.name);
           } else {
-            alert("Shehar nahi mila, spelling check karein!");
+            alert(currentLang === 'hi' ? "स्थान की जानकारी नहीं मिली, कृपया सही नाम लिखें।" : (currentLang === 'bn' ? "স্থান পাওয়া যায়নি!" : "Location not found!"));
           }
         })
         .catch(function() {
-          alert("Internet check karein!");
+          alert("इंटरनेट कनेक्शन की जाँच करें!");
         });
     }
 
     function handleGPS() {
-      getWeather(22.0667, 88.0698, "Haldia, WB (Local)");
+      getWeather(22.0667, 88.0698, currentLang === 'hi' ? "हल्दिया (पश्चिम बंगाल)" : "Haldia, WB (Local)");
     }
 
     function getWeather(lat, lon, placeName) {
@@ -356,38 +568,37 @@
         .then(function(r) { return r.json(); })
         .then(function(d) {
           var t = Math.round(d.current.temperature_2m);
-          var rain = d.daily.precipitation_probability_max[0];
-          var wind = Math.round(d.current.wind_speed_10m);
+          lastRain = d.daily.precipitation_probability_max[0];
+          lastWind = Math.round(d.current.wind_speed_10m);
           var hum = d.current.relative_humidity_2m;
 
           document.getElementById('tempDisp').innerText = t + "°C";
-          document.getElementById('rainDisp').innerText = rain + "%";
-          document.getElementById('windDisp').innerText = wind + " km/h";
+          document.getElementById('rainDisp').innerText = lastRain + "%";
+          document.getElementById('windDisp').innerText = lastWind + " km/h";
           document.getElementById('humDisp').innerText = hum + "%";
 
-          // Action Status
-          setStatus('boxIrr', 'txtIrr', rain >= 40, 'ROKEIN ❌', 'SAHI HAI ✔');
-          setStatus('boxSpray', 'txtSpray', (wind > 16 || rain >= 35), 'ROKEIN ❌', 'ANUKUL ✔');
-          setStatus('boxHarv', 'txtHarv', rain >= 30, 'TALEIN ❌', 'SURAKSHIT ✔');
+          var trans = translations[currentLang];
+          setStatus('boxIrr', 'txtIrr', lastRain >= 40, trans.statusWait, trans.statusGood);
+          setStatus('boxSpray', 'txtSpray', (lastWind > 16 || lastRain >= 35), trans.statusWait, trans.statusGood);
+          setStatus('boxHarv', 'txtHarv', lastRain >= 30, trans.statusWait, trans.statusGood);
 
-          // Render 5 Days
-          render5DayForecast(d.daily);
-
-          updateTips(rain, wind);
+          cachedDaily = d.daily;
+          render5DayForecast(cachedDaily);
+          updateTips(lastRain, lastWind);
         })
         .catch(function() {
-          console.log("Local fallback loaded.");
+          console.log("Weather fetch fallback.");
         });
     }
 
     function render5DayForecast(daily) {
       var container = document.getElementById('forecastCards');
       container.innerHTML = "";
-      var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      var daysArr = translations[currentLang].days;
 
       for (var i = 1; i <= 5; i++) {
         var date = new Date(daily.time[i]);
-        var dayName = days[date.getDay()];
+        var dayName = daysArr[date.getDay()];
         var temp = Math.round(daily.temperature_2m_max[i]);
         var rain = daily.precipitation_probability_max[i];
 
@@ -409,29 +620,26 @@
 
     function updateTips(rain, wind) {
       var ul = document.getElementById('tipsList');
+      var t = translations[currentLang].tips;
       var list = [];
 
       if (rain >= 40) {
-        list.push("Barish ki sambhavna hai, faslo me paani na lagayein.");
+        list.push(t.rainHigh);
       } else {
-        list.push("Mausam sookha rahega, zaroorat padne par halki sinchai karein.");
+        list.push(t.rainLow);
       }
 
       if (wind > 16) {
-        list.push("Hawa tez chal rahi hai, spray hawa me beh jayega. Chhidkaav rokein.");
+        list.push(t.windHigh);
       } else {
-        list.push("Hawa shant hai, dawai chhidkaav ke liye sahi samay hai.");
+        list.push(t.windLow);
       }
 
-      if (currentCrop === "Dhan") {
-        list.push("Dhan Vishesh: Khet me 2-3 cm nami banaye rakhein.");
-      } else if (currentCrop === "Aloo") {
-        list.push("Aloo Vishesh: Nami badhne par jhulsa rog ka dhyan rakhein.");
-      } else {
-        list.push(currentCrop + " Vishesh: Nayi konpalon par keet ke lakshan check karein.");
+      if (t.crops[currentCropKey]) {
+        list.push(t.crops[currentCropKey]);
       }
 
-      speechText = list.join(". ");
+      speechText = list.join(" ");
       ul.innerHTML = "";
       for (var i = 0; i < list.length; i++) {
         var li = document.createElement('li');
@@ -444,6 +652,7 @@
       var file = event.target.files[0];
       if (!file) return;
 
+      var t = translations[currentLang];
       var img = document.getElementById('leafImgView');
       var rep = document.getElementById('reportDiv');
       var repTitle = document.getElementById('repTitle');
@@ -453,12 +662,12 @@
       img.style.display = "block";
 
       rep.style.display = "block";
-      repTitle.innerText = "⏳ AI Scan Ho Raha Hai...";
-      repDesc.innerText = "Patti ki bimari scan ki ja rahi hai...";
+      repTitle.innerText = t.scanningText;
+      repDesc.innerText = t.scanningDesc;
 
       setTimeout(function() {
-        repTitle.innerText = "⚠️ Rog: Leaf Spot (Early Stage)";
-        repDesc.innerText = "Mancozeb 2g/Litre ka spray karein. Fasal me jal-nikasi saaf rakhein.";
+        repTitle.innerText = t.repTitle;
+        repDesc.innerText = t.repDesc;
       }, 1200);
     }
 
@@ -466,16 +675,16 @@
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         var msg = new SpeechSynthesisUtterance(speechText);
-        msg.lang = 'hi-IN';
+        msg.lang = translations[currentLang].voiceLang;
         window.speechSynthesis.speak(msg);
       } else {
-        alert("Audio speech support nahi hai.");
+        alert("इस ब्राउज़र में ऑडियो स्पीच की सुविधा उपलब्ध नहीं है।");
       }
     }
 
-    // Default load Haldia
     window.onload = function() {
-      getWeather(22.0667, 88.0698, "Haldia, WB (Local)");
+      applyLanguageUI();
+      getWeather(22.0667, 88.0698, "हल्दिया (पश्चिम बंगाल)");
     };
   </script>
 </body>
